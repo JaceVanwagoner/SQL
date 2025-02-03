@@ -59,7 +59,7 @@ VALUES
     ;
 
 
--- selecting both tables to see the data and which columns they have in common.--
+-- selecting both tables to see the data and which columns they have in common. (in these following queries I will be using PostgreSQL)--
 SELECT * 
 From "netflix_titles_info"
 LIMIT 3
