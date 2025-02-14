@@ -1,0 +1,175 @@
+--Using data from Kaggle i have worked on a project to help show my SQL knowledge and continue practicing to get even better--
+
+--What are all the names, customer ids, and country of the customers who are not in the United States?
+
+SELECT CustomerId
+, FirstName
+, LastName
+, Country
+FROM customers
+WHERE Country <> 'USA'
+ORDER BY Country
+;
+--Show only the Customers from Brazil.
+SELECT CustomerId
+, FirstName
+, LastName
+, Country
+FROM customers
+WHERE Country='Brazil'
+;
+--What is the total sales amount for 2009?
+
+SELECT SUM(Total) AS Total_Sales
+FROM invoices 
+WHERE InvoiceDate like '%2009%'
+;
+--How many sales has each sales agent made?
+
+SELECT employees.FirstName
+, employees.LastName
+, COUNT(invoices.InvoiceId) AS SalesMade
+FROM employees
+JOIN customers
+ON employees.EmployeeId = customers.SupportRepId
+JOIN invoices
+ON customers.CustomerId=invoices.CustomerId
+JOIN invoice_items
+ON invoices.InvoiceId=invoice_items.InvoiceId
+GROUP BY employees.EmployeeId
+ORDER BY SalesMade DESC
+;
+--Which sales agent made the most money in 2010 and how much did they make?
+
+SELECT employees.FirstName
+, employees.LastName
+, SUM(invoices.Total) AS MoneyMade
+FROM employees
+JOIN customers
+ON employees.EmployeeId = customers.SupportRepId
+JOIN invoices
+ON customers.CustomerId=invoices.CustomerId
+WHERE invoices.InvoiceDate like '%2010%'
+GROUP BY employees.EmployeeId
+ORDER BY MoneyMade DESC
+LIMIT 1
+;
+--What is the Total amount of items purchased by each country?
+
+SELECT i.BillingCountry AS Country
+, COUNT(it.InvoiceID) AS Items_Purchased
+FROM invoices AS i
+JOIN invoice_items AS it
+ON i.InvoiceId=it.InvoiceId
+GROUP BY i.BillingCountry
+ORDER BY Items_Purchased DESC
+;
+--How many items were purchased from the USA in each year? 
+
+SELECT i.BillingCountry AS Country
+, strftime('%Y', i.InvoiceDate) AS Year 
+, count(it.InvoiceID) Items_Purchased
+FROM invoices AS i
+JOIN invoice_items AS it
+ON i.InvoiceId=it.InvoiceId
+WHERE i.BillingCountry = 'USA'
+GROUP BY Year
+ORDER BY Year
+;
+--Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country.
+
+SELECT c.FirstName ||' '|| c.LastName AS FullName
+, i.InvoiceId
+, i.InvoiceDate
+, i.BillingCountry
+FROM customers AS c
+JOIN invoices AS i
+ON c.CustomerId=i.CustomerId
+WHERE c.Country='Brazil'
+;
+--Find a unique/distinct list of billing countries from the Invoice table.
+
+SELECT DISTINCT BillingCountry
+FROM invoices
+ORDER BY BillingCountry
+;
+--Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name.
+
+SELECT t.Name as Tracks
+, i.InvoiceId
+, e.FirstName ||' '|| e.LastName as FullName
+FROM employees as e
+Join customers as c
+ON e.EmployeeID=c.SupportRepId
+JOIN invoices as i
+ON c.CustomerId=i.CustomerId
+JOIN invoice_items as it
+ON i.InvoiceId=it.InvoiceId
+JOIN tracks as t
+ON it.TrackId=t.TrackId
+WHERE e.Title='Sales Support Agent'
+GROUP BY FullName, i.InvoiceId
+ORDER BY FullName
+;
+--Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+
+SELECT e.Firstname ||' '|| e.LastName as Sales_Agent
+, c.FirstName ||' '|| c.LastName as Customer_Name
+, c.Country
+, SUM(i.total) as InvoiceTotal
+FROM employees as e 
+JOIN Customers as c 
+ON c.SupportRepId = e.EmployeeId
+JOIN Invoices as i 
+ON i.CustomerId = c.CustomerId
+GROUP BY Customer_Name
+ORDER BY Sales_Agent
+;
+--How many Invoices were there in 2009?
+
+SELECT COUNT(*)
+FROM invoices
+WHERE InvoiceDate like '%2009%'
+;
+--What are the total sales for 2009?
+
+SELECT SUM(Total)
+FROM Invoices
+WHERE InvoiceDate like '%2009%'
+;
+--Write a query that includes the purchased track name with each invoice line ID.
+
+SELECT t.Name
+, i.InvoiceLineId
+FROM Invoice_items as i
+JOIN Tracks as t 
+ON i.TrackId = t.TrackId
+;
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+
+SELECT ar.name as Artist
+, t.Name as Track
+, i.InvoiceLineId
+FROM Invoice_items i
+JOIN tracks t 
+ON i.TrackID=t.TrackID
+JOIN albums a
+ON a.AlbumID=t.AlbumID
+JOIN artists ar
+ON ar.ArtistID=a.ArtistID
+;
+--Show all the track names, Artists, Albums and Genre of each track.
+
+SELECT t.Name AS Track
+, ar.Name AS Artist
+, al.Title AS Album
+, g.Name AS Genre
+From genres AS g
+JOIN tracks AS t
+ON g.Genreid=t.Genreid
+JOIN albums AS al
+ON t.Albumid=al.Albumid
+JOIN artists AS ar
+ON al.Artistid=ar.Artistid
+ORDER BY Artist
+;
